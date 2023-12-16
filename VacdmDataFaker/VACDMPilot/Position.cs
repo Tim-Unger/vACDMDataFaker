@@ -1,4 +1,6 @@
-﻿namespace VACDMApp.VACDMData
+﻿using System.Text.Json.Serialization;
+
+namespace VACDMApp.VACDMData
 {
     public class Position
     {

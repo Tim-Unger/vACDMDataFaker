@@ -5,6 +5,44 @@ namespace VacdmDataFaker
 {
     public partial class PilotFaker
     {
+        private static readonly string[] _waypoints = new string[]
+        {
+            "VRYAN",
+            "IAKEQ",
+            "OCSNT",
+            "QIXWI",
+            "GLMBJ",
+            "OOGFS",
+            "IPBKD",
+            "HLNSL",
+            "NIGFQ",
+            "CTRDL",
+            "LXQYJ",
+            "FXAVA",
+            "CIVVJ",
+            "VOCEV",
+            "JMXBK",
+            "FXANI",
+            "VTWMW",
+            "BRBHZ",
+            "ZGQDV",
+            "KQVPD"
+        };
+
+        private static readonly string[] _designators = new string[]
+        {
+            "A",
+            "M",
+            "W",
+            "L",
+            "S",
+            "K",
+            "E",
+            "D",
+            "P",
+            "H"
+        };
+
         public static List<VACDMPilot> FakePilots(int listCount)
         {
             var positionFaker = new Faker<Position>()
@@ -22,9 +60,13 @@ namespace VacdmDataFaker
 
             var runways = new string[] { "07", "06", "25L", "25R", "16", "34R", "03" };
 
+            var randomizer = new Randomizer();
+
+            var sidFaker = $"{randomizer.ArrayElement(_waypoints)}{randomizer.Int(1,9)}{randomizer.ArrayElement(_designators)}";
+
             var clearanceFaker = new Faker<Clearance>()
                 .RuleFor(x => x.DepRwy, y => y.Random.ArrayElement(runways))
-                .RuleFor(x => x.Sid, y => $"{y.Random.String2(5)}{y.Random.Int(0, 9)}{y.Random.String2(1)}")
+                .RuleFor(x => x.Sid, y => sidFaker)
                 .RuleFor(x => x.InitialClimb, y => "5000")
                 .RuleFor(x => x.AssignedSquawk, y => y.Random.Int(2001, 2110).ToString());
 
@@ -40,8 +82,7 @@ namespace VacdmDataFaker
                 .RuleFor(x => x.UpdatedAt, y => DateTime.UtcNow)
                 .RuleFor(x => x.V, y => 1);
 
-            var fakePilots = pilotFaker.Generate(listCount);
-            return fakePilots;
+            return pilotFaker.Generate(listCount);
         }
     }
 }

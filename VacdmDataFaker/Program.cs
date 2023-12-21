@@ -28,7 +28,7 @@ while (true)
     var concernedPilots = vatsimPilots
         .Where(x => x.flight_plan is not null)
         .Where(x => aerodromes.Any(y => y == x.flight_plan.departure))
-        .Where(x => x.groundspeed < 50)
+        //.Where(x => x.groundspeed < 50)
         .ToList();
 
     var random = new Random();
@@ -37,7 +37,7 @@ while (true)
 
     for (var i = 0; i < 20; i++)
     {
-        var randomNumber = random.Next(0, concernedPilots.Count);
+        var randomNumber = random.Next(0, concernedPilots.Count - 1);
         randomIndices.Add(randomNumber);
     }
 
@@ -107,8 +107,24 @@ while (true)
         Console.WriteLine("No pilots active at the moment");
     }
 
+    int remainingCallsigns = currentCallsigns.Count();
+
     foreach (var currentCallsign in currentCallsigns)
     {
+        //TODO Delete pilots that are not connected to Vatsim any more
+
+        if(currentCallsigns.Count() < 15)
+        {
+            break;
+        }
+
+        if(remainingCallsigns < 14)
+        {
+            break;
+        }
+
+        remainingCallsigns--;
+
         var deleteUrl = $"https://vacdm.tim-u.me/api/v1/pilots/{currentCallsign}";
 
         var response = await client.DeleteAsync(deleteUrl);
@@ -127,6 +143,11 @@ while (true)
 
     foreach (var pilot in updatedPilots)
     {
+        if (currentCallsigns.Any(x => x == pilot.Callsign))
+        {
+            continue;
+        }
+
         var postUrl = $"https://vacdm.tim-u.me/api/v1/pilots";
 
         var contentRaw = JsonSerializer.Serialize<VACDMPilot>(pilot);

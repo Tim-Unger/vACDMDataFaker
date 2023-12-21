@@ -55,23 +55,32 @@ while (true)
     {
         var vatsimPilot = randomPilots[index];
 
-        var deptime = vatsimPilot.flight_plan.deptime;
+        //var deptime = vatsimPilot.flight_plan.deptime;
 
-        (var depHour, var depMinute) = (int.Parse(deptime[..2]), int.Parse(deptime[3..]));
+        //(var depHour, var depMinute) = (int.Parse(deptime[..2]), int.Parse(deptime[3..]));
 
         var now = DateTime.UtcNow;
+
+        //We are weighting the current Hour double to get more pilots with a possible TSAT
+        var possibleHours = new[] { now.AddHours(-1).Hour, now.Hour, now.Hour, now.AddHours(1).Hour};
+
+        var randomHour = random.Next(possibleHours.First(), possibleHours.Last());
+
+        var randomMinute = random.Next(0, 59);
+
+
         var eobt = new DateTime(
             now.Year,
             now.Month,
             now.Day,
-            depHour,
-            depMinute,
+            randomHour,
+            randomMinute,
             00,
             DateTimeKind.Utc
         );
         fakePilot.Vacdm.Eobt = eobt;
 
-        var randomTobtOffset = random.Next(0, 15);
+        var randomTobtOffset = random.Next(0, 5);
 
         var tsat = eobt.AddMinutes(randomTobtOffset);
         fakePilot.Vacdm.Tobt = eobt;
@@ -118,12 +127,11 @@ while (true)
             break;
         }
 
-        if(remainingCallsigns < 14)
+        if(remainingCallsigns > 14)
         {
+            remainingCallsigns--;
             break;
         }
-
-        remainingCallsigns--;
 
         var deleteUrl = $"https://vacdm.tim-u.me/api/v1/pilots/{currentCallsign}";
 

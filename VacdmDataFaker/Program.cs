@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using VACDMApp.VACDMData;
 using VacdmDataFaker;
@@ -12,6 +11,7 @@ var config = JsonSerializer.Deserialize<Config>(
 );
 
 var client = new HttpClient();
+
 
 while (true)
 {
@@ -63,6 +63,8 @@ while (true)
 
         //We are weighting the current Hour double to get more pilots with a possible TSAT
         var possibleHours = new[] { now.AddHours(-1).Hour, now.Hour, now.Hour, now.AddHours(1).Hour};
+
+        possibleHours = possibleHours.Order().ToArray();
 
         var randomHour = random.Next(possibleHours.First(), possibleHours.Last());
 
@@ -127,11 +129,12 @@ while (true)
             break;
         }
 
-        if(remainingCallsigns > 14)
+        if(remainingCallsigns < 20)
         {
-            remainingCallsigns--;
             break;
         }
+
+        remainingCallsigns--;
 
         var deleteUrl = $"https://vacdm.tim-u.me/api/v1/pilots/{currentCallsign}";
 

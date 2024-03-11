@@ -1,4 +1,4 @@
-﻿namespace VACDMApp.VACDMData
+﻿namespace VacdmDataFaker.Vacdm
 {
 
     public class VatsimData

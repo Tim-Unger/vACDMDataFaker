@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace VacdmDataFaker
+namespace VacdmDataFaker.Vacdm
 {
     internal class ApiStatus
     {

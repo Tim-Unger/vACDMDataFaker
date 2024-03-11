@@ -1,7 +1,6 @@
 ﻿using Bogus;
-using VACDMApp.VACDMData;
 
-namespace VacdmDataFaker
+namespace VacdmDataFaker.Vacdm
 {
     public partial class PilotFaker
     {

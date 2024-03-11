@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
-using VACDMApp.VACDMData;
-using VacdmDataFaker;
+using VacdmDataFaker.Vacdm;
 
 var jsonOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
@@ -11,7 +10,6 @@ var config = JsonSerializer.Deserialize<Config>(
 );
 
 var client = new HttpClient();
-
 
 while (true)
 {
@@ -54,10 +52,6 @@ while (true)
     foreach (var fakePilot in fakePilots)
     {
         var vatsimPilot = randomPilots[index];
-
-        //var deptime = vatsimPilot.flight_plan.deptime;
-
-        //(var depHour, var depMinute) = (int.Parse(deptime[..2]), int.Parse(deptime[3..]));
 
         var now = DateTime.UtcNow;
 
@@ -122,8 +116,6 @@ while (true)
 
     foreach (var currentCallsign in currentCallsigns)
     {
-        //TODO Delete pilots that are not connected to Vatsim any more
-
         if(currentCallsigns.Count() < 15)
         {
             break;

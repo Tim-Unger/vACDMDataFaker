@@ -1,4 +1,4 @@
-﻿namespace VacdmDataFaker
+﻿namespace VacdmDataFaker.Vacdm
 {
     public class Config
     {

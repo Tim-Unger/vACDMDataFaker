@@ -7,6 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
+    - name: Create and populate config.json
+      uses: jsdaniell/create-json@v1.2.3
+      with:
+        name: "VacdmDataFaker.Vacdm/config.json"
+        json: ${{ secrets.JSON_VACDM }}
     
     - name: Build the Docker image
       working-directory: VacdmDataFaker.Vacdm

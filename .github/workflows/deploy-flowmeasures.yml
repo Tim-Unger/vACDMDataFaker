@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: Build the Docker image
-      working-directory: /VacdmDataFaker.Vacdm
+      working-directory: VacdmDataFaker.FlowMeasures
       run: docker build . -t timunger/vacdmdatafaker-flowmeasures:latest
       
     - name: Log into Docker Hub

@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Create and populate config.json
-    - uses: jsdaniell/create-json@v1.2.3
+      uses: jsdaniell/create-json@v1.2.3
       with:
         name: "VacdmDataFaker.FlowMeasures/config.json"
         json: ${{ secrets.JSON }}

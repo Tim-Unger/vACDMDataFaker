@@ -12,7 +12,7 @@ jobs:
       uses: jsdaniell/create-json@v1.2.3
       with:
         name: "VacdmDataFaker.FlowMeasures/config.json"
-        json: ${{ secrets.JSON }}
+        json: ${{ secrets.JSON_FLOW }}
       
     
     - name: Build the Docker image

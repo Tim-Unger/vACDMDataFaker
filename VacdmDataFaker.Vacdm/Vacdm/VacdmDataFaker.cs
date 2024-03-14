@@ -81,6 +81,10 @@ namespace VacdmDataFaker.Vacdm
                 .RuleFor(x => x.UpdatedAt, y => DateTime.UtcNow)
                 .RuleFor(x => x.V, y => 1);
 
+            Console.WriteLine(
+                            $"[{DateTime.UtcNow:s}Z] [INFO] Added fake pilot {pilot.Callsign}"
+                        );
+
             return pilotFaker.Generate(listCount);
         }
     }

@@ -8,7 +8,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 #if RELEASE
-builder.WebHost.UseUrls("http://localhost:5555");
+builder.WebHost.UseUrls("http://localhost:6000");
 #endif
 
 builder.Services.AddControllersWithViews(options =>

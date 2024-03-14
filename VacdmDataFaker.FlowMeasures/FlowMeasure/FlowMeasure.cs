@@ -40,10 +40,10 @@ namespace VacdmDataFaker.FlowMeasures
         public string Reason { get; set; }
 
         [JsonPropertyName("starttime")]
-        public DateTime StartTime { get; set; }
+        public string StartTime { get; set; }
 
         [JsonPropertyName("endtime")]
-        public DateTime EndTime { get; set; }
+        public string EndTime { get; set; }
 
         [JsonPropertyName("measure")]
         public Measure Measure { get; set; }
@@ -52,15 +52,18 @@ namespace VacdmDataFaker.FlowMeasures
         public List<Filter> Filters { get; set; }
 
         [JsonPropertyName("notified_flight_information_regions")]
-        public int[] notifiedFirs { get; set; }
+        public int[] NotifiedFlightInformationRegions { get; set; }
 
+        [JsonIgnore]
         public List<Fir> NotifiedFirs { get; set; } = new();
 
+        [JsonIgnore]
         public MeasureStatus MeasureStatus { get; set; }
 
         [JsonPropertyName("withdrawn_at")]
-        public DateTime? WithdrawnAt { get; set; }
+        public string? WithdrawnAt { get; set; }
 
+        [JsonIgnore]
         public bool IsWithdrawn { get; set; } = false;
     }
 
@@ -69,8 +72,10 @@ namespace VacdmDataFaker.FlowMeasures
         [JsonPropertyName("type")]
         public string TypeRaw { get; set; }
 
+        [JsonIgnore]
         public MeasureType MeasureType { get; set; }
 
+        [JsonIgnore]
         public string MeasureTypeString { get; set; }
 
         [JsonPropertyName("value")]

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -13,6 +11,7 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
     public class FlowMeasureController : Controller
     {
         [HttpGet("/data")]
+        [HttpGet("/")]
         public JsonResult Get() => new(FlowMeasureFaker.FlowMeasures);
 
         [HttpPost("/data/fake/{count}")]
@@ -27,11 +26,13 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
             var credentialBytes = Convert.FromBase64String(authHeader.Parameter!);
             var credentialsRaw = Encoding.UTF8.GetString(credentialBytes).Split(":");
 
-            var rawConfig = System.IO.File.ReadAllText($"{Environment.CurrentDirectory}/config.json");
+            var rawConfig = System.IO.File.ReadAllText(
+                $"{Environment.CurrentDirectory}/config.json"
+            );
 
             var config = JsonSerializer.Deserialize<Config>(rawConfig);
 
-            if(config?.Password is null)
+            if (config?.Password is null)
             {
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
@@ -42,7 +43,9 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
                 Password = credentialsRaw[1]
             };
 
-            if(config.Password != passedConfig.Password || config.Username != passedConfig.Username)
+            if (
+                config.Password != passedConfig.Password || config.Username != passedConfig.Username
+            )
             {
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized);
             }
@@ -52,7 +55,6 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
                 FlowMeasureFaker.FakeMeasures(count ?? 10);
                 return new HttpResponseMessage(HttpStatusCode.OK);
             }
-
             catch
             {
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);

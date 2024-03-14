@@ -7,6 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+#if RELEASE
+builder.WebHost.UseUrls("http://localhost:5555");
+#endif
+
 builder.Services.AddControllersWithViews(options =>
 {
     options.AllowEmptyInputInBodyModelBinding = true;

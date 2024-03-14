@@ -2,7 +2,7 @@
 
 namespace VacdmDataFaker.Vacdm
 {
-    public class VACDMPilot
+    public class VacdmPilot
     {
         [JsonPropertyName("position")]
         public Position Position { get; set; }

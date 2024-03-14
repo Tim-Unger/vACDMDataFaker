@@ -2,7 +2,7 @@
 
 namespace VacdmDataFaker.Vacdm
 {
-    public partial class PilotFaker
+    public partial class VacdmPilotFaker
     {
         private static readonly string[] _waypoints = new string[]
         {
@@ -42,7 +42,7 @@ namespace VacdmDataFaker.Vacdm
             "H"
         };
 
-        public static List<VACDMPilot> FakePilots(int listCount)
+        public static List<VacdmPilot> FakePilots(int listCount)
         {
             var positionFaker = new Faker<Position>()
                 .RuleFor(x => x.Latitude, y => float.Parse(y.Address.Latitude().ToString()))
@@ -69,7 +69,7 @@ namespace VacdmDataFaker.Vacdm
                 .RuleFor(x => x.InitialClimb, y => "5000")
                 .RuleFor(x => x.AssignedSquawk, y => y.Random.Int(2001, 2110).ToString());
 
-            var pilotFaker = new Faker<VACDMPilot>()
+            var pilotFaker = new Faker<VacdmPilot>()
                 .RuleFor(x => x.Position, y => positionFaker.Generate())
                 .RuleFor(x => x.Vacdm, y => vacdmFaker.Generate())
                 .RuleFor(x => x.FlightPlan, y => flightPlanFaker.Generate())

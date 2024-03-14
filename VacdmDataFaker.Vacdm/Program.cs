@@ -2,6 +2,8 @@
 using System.Text.Json;
 using VacdmDataFaker.Vacdm;
 
+Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Program Initialized");
+
 var jsonOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
 var config = JsonSerializer.Deserialize<Config>(
@@ -13,11 +15,20 @@ var client = new HttpClient();
 
 while (true)
 {
-    Console.Clear();
+    Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Running Update");
 
-    var vatsimPilotsRaw = await client.GetStringAsync(
-        "https://data.vatsim.net/v3/vatsim-data.json"
-    );
+    var vatsimPilotsRaw = "";
+    try
+    {
+        vatsimPilotsRaw = await client.GetStringAsync(
+            "https://data.vatsim.net/v3/vatsim-data.json"
+        );
+    }
+    catch
+    {
+        Console.WriteLine($"[{DateTime.UtcNow:s}Z] [FATAL] Could not fetch Vatsim Datafeed");
+        throw new HttpRequestException();
+    }
 
     var vatsimPilots = JsonSerializer.Deserialize<VatsimData>(vatsimPilotsRaw)!.pilots;
 
@@ -56,14 +67,19 @@ while (true)
         var now = DateTime.UtcNow;
 
         //We are weighting the current Hour double to get more pilots with a possible TSAT
-        var possibleHours = new[] { now.AddHours(-1).Hour, now.Hour, now.Hour, now.AddHours(1).Hour};
+        var possibleHours = new[]
+        {
+            now.AddHours(-1).Hour,
+            now.Hour,
+            now.Hour,
+            now.AddHours(1).Hour
+        };
 
         possibleHours = possibleHours.Order().ToArray();
 
         var randomHour = random.Next(possibleHours.First(), possibleHours.Last());
 
         var randomMinute = random.Next(0, 59);
-
 
         var eobt = new DateTime(
             now.Year,
@@ -98,8 +114,16 @@ while (true)
 
     var currentPilotsRaw = await client.GetStringAsync("https://vacdm.tim-u.me/api/v1/pilots");
 
+    if (currentPilotsRaw is null)
+    {
+        Console.WriteLine(
+            $"[{DateTime.UtcNow:s}Z] [FATAL] Could not fetch current pilots from vACDM"
+        );
+        throw new InvalidDataException();
+    }
+
     var currentCallsigns = JsonSerializer
-        .Deserialize<List<VACDMPilot>>(currentPilotsRaw)
+        .Deserialize<List<VACDMPilot>>(currentPilotsRaw)!
         .Select(x => x.Callsign);
 
     client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeaderValue(
@@ -109,19 +133,19 @@ while (true)
 
     if (!currentCallsigns.Any())
     {
-        Console.WriteLine("No pilots active at the moment");
+        Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] No Pilots active at the moment");
     }
 
     int remainingCallsigns = currentCallsigns.Count();
 
     foreach (var currentCallsign in currentCallsigns)
     {
-        if(currentCallsigns.Count() < 15)
+        if (currentCallsigns.Count() < 15)
         {
             break;
         }
 
-        if(remainingCallsigns < 20)
+        if (remainingCallsigns < 20)
         {
             break;
         }
@@ -138,7 +162,9 @@ while (true)
 
             var message = JsonSerializer.Deserialize<ApiStatus>(messageRaw);
 
-            Console.WriteLine($"{currentCallsign} -- Deleted, bye bye");
+            Console.WriteLine(
+                $"[{DateTime.UtcNow:s}Z] [INFO] Deleted fake pilot {currentCallsign}"
+            );
         }
 
         await Task.Delay(100);
@@ -167,15 +193,18 @@ while (true)
 
             if (message is not null)
             {
-                Console.WriteLine($"{pilot.Callsign} -- Great Success");
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [INFO] Added fake pilot {pilot.Callsign}"
+                );
             }
         }
 
         await Task.Delay(100);
     }
 
-    Console.WriteLine("--");
-    Console.WriteLine($"Next Update at: {DateTime.UtcNow.AddMinutes(10).ToLongTimeString()}Z");
+    Console.WriteLine(
+        $"[{DateTime.UtcNow:s}Z] [INFO] Next update at {DateTime.UtcNow.AddMinutes(10):HH:mm}Z"
+    );
 
     await Task.Delay(TimeSpan.FromMinutes(10));
 }

@@ -10,7 +10,7 @@
             {
                 var nowErr = DateTime.UtcNow;
 
-                Console.WriteLine($"[{nowErr:s}Z] [WARN] TaskRunnter was trying to be initialized but is already running");
+                Console.WriteLine($"[{nowErr:s}Z] [FATAL] TaskRunnter was trying to be initialized but is already running");
 
                 throw new InvalidOperationException("TaskRunner is already running");
             }

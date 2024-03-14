@@ -34,6 +34,10 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
 
             if (config?.Password is null)
             {
+                var now = DateTime.UtcNow;
+
+                Console.WriteLine($"[{now:s}] [WARN] Post failed as config is not valid");
+
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
 
@@ -47,16 +51,31 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
                 config.Password != passedConfig.Password || config.Username != passedConfig.Username
             )
             {
+                var now = DateTime.UtcNow;
+
+                Console.WriteLine($"[{now:s}] [WARN] Post failed as password or username were invalid");
+
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized);
             }
 
             try
             {
-                FlowMeasureFaker.FakeMeasures(count ?? 10);
+                var now = DateTime.UtcNow;
+
+                var addCount = count ?? 10;
+
+                Console.WriteLine($"[{now:s}] [INFO] Adding {addCount} through Post");
+
+                FlowMeasureFaker.FakeMeasures(addCount);
+
                 return new HttpResponseMessage(HttpStatusCode.OK);
             }
-            catch
+            catch ( Exception ex )
             {
+                var now = DateTime.UtcNow;
+
+                Console.WriteLine($"[{now:s}] [WARN] Post failed: {ex.InnerException}");
+
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
         }

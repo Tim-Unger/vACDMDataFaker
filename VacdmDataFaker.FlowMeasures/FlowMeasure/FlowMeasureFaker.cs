@@ -152,6 +152,8 @@ namespace VacdmDataFaker.FlowMeasures
             fakeMeasure.NotifiedFlightInformationRegions = randomNotifiedFirs;
             fakeMeasure.Filters = randomFilters;
 
+            Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Added Measure {fakeMeasure.Ident}");
+
             return fakeMeasure;
         }
 

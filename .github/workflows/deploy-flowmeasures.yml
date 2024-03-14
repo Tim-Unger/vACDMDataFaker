@@ -1,0 +1,29 @@
+on:
+  push:
+    branches: [ "main" ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Create and populate config.json
+      uses: jsdaniell/create-json@v1.2.3
+      with:
+        name: "VacdmDataFaker.FlowMeasures/config.json"
+        json: ${{ secrets.JSON_FLOW }}
+      
+    
+    - name: Build the Docker image
+      working-directory: VacdmDataFaker.FlowMeasures
+      run: docker build . -t timunger/vacdmdatafaker-flowmeasures:latest
+      
+    - name: Log into Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Push the images to Docker Hub
+      run: docker push timunger/vacdmdatafaker-flowmeasures

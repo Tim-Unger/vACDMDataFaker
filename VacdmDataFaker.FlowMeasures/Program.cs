@@ -22,4 +22,6 @@ app.MapControllers();
 
 app.Start();
 
+Response.Redirect("/data");
+
 await TaskRunner.Run();

@@ -7,9 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-#if RELEASE
-builder.WebHost.UseUrls("http://localhost:5656");
-#endif
+builder.WebHost.UseUrls("http://localhost:6001");
 
 builder.Services.AddControllersWithViews(options =>
 {

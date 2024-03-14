@@ -59,7 +59,7 @@ namespace VacdmDataFaker.Vacdm
 
             var randomPilots = randomIndices.Select(x => concernedPilots[x]).ToList();
 
-            var fakePilots = VacdmPilotFaker.FakePilots(randomPilots.Count);
+            var fakePilots = FakePilots(randomPilots.Count);
 
             int index = 0;
 

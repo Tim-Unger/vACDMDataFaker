@@ -1,11 +1,10 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace VacdmDataFaker.Vacdm
 {
     public partial class VacdmPilotFaker
     {
-        private static HttpClient _client = new();
+        internal static HttpClient Client = new();
 
         internal static async Task RunUpdate()
         {
@@ -14,7 +13,7 @@ namespace VacdmDataFaker.Vacdm
             var vatsimPilotsRaw = "";
             try
             {
-                vatsimPilotsRaw = await _client.GetStringAsync(
+                vatsimPilotsRaw = await Client.GetStringAsync(
                     "https://data.vatsim.net/v3/vatsim-data.json"
                 );
             }
@@ -69,71 +68,16 @@ namespace VacdmDataFaker.Vacdm
             {
                 var vatsimPilot = randomPilots[index];
 
-                var now = DateTime.UtcNow;
+                var updatedPilot = AddDataToFakePilot(vatsimPilot, fakePilot);
 
-                //We are weighting the current Hour double to get more pilots with a possible TSAT
-                var possibleHours = new[]
-                {
-                    now.AddHours(-1).Hour,
-                    now.Hour,
-                    now.Hour,
-                    now.AddHours(1).Hour
-                };
-
-                possibleHours = possibleHours.Order().ToArray();
-
-                var randomHour = random.Next(possibleHours.First(), possibleHours.Last());
-
-                var randomMinute = random.Next(0, 59);
-
-                var eobt = new DateTime(
-                    now.Year,
-                    now.Month,
-                    now.Day,
-                    randomHour,
-                    randomMinute,
-                    00,
-                    DateTimeKind.Utc
-                );
-                fakePilot.Vacdm.Eobt = eobt;
-
-                var randomTobtOffset = random.Next(0, 5);
-
-                var tsat = eobt.AddMinutes(randomTobtOffset);
-                fakePilot.Vacdm.Tobt = eobt;
-                fakePilot.Vacdm.Tsat = tsat;
-                fakePilot.Vacdm.Ctot = tsat.AddMinutes(fakePilot.Vacdm.Exot);
-                fakePilot.Vacdm.Ttot = tsat.AddMinutes(fakePilot.Vacdm.Exot);
-
-                fakePilot.FlightPlan.Departure = vatsimPilot.flight_plan.departure;
-                fakePilot.FlightPlan.Arrival = vatsimPilot.flight_plan.arrival;
-
-                fakePilot.Callsign = vatsimPilot.callsign;
-
-                fakePilot.Clearance.CurrentSquawk = vatsimPilot.transponder;
-
-                updatedPilots.Add(fakePilot);
+                updatedPilots.Add(updatedPilot);
 
                 index++;
             }
 
-            var currentPilotsRaw = await _client.GetStringAsync(
-                "https://vacdm.tim-u.me/api/v1/pilots"
-            );
+            var currentCallsigns = await GetCurrentPilots();
 
-            if (currentPilotsRaw is null)
-            {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Could not fetch current pilots from vACDM"
-                );
-                throw new InvalidDataException();
-            }
-
-            var currentCallsigns = JsonSerializer
-                .Deserialize<List<VacdmPilot>>(currentPilotsRaw)!
-                .Select(x => x.Callsign);
-
-            _client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeaderValue(
+            Client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeaderValue(
                 TaskRunner.Config.Cid.ToString(),
                 TaskRunner.Config.Password.ToString()
             );
@@ -159,21 +103,8 @@ namespace VacdmDataFaker.Vacdm
 
                 remainingCallsigns--;
 
-                var deleteUrl = $"https://vacdm.tim-u.me/api/v1/pilots/{currentCallsign}";
-
-                var response = await _client.DeleteAsync(deleteUrl);
-
-                if (response.Content != null)
-                {
-                    var messageRaw = await response.Content.ReadAsStringAsync();
-
-                    var message = JsonSerializer.Deserialize<ApiStatus>(messageRaw);
-
-                    Console.WriteLine(
-                        $"[{DateTime.UtcNow:s}Z] [INFO] Deleted fake pilot {currentCallsign}"
-                    );
-                }
-
+                await DeletePilotAsync(currentCallsign);
+                
                 await Task.Delay(100);
             }
 
@@ -184,27 +115,7 @@ namespace VacdmDataFaker.Vacdm
                     continue;
                 }
 
-                var postUrl = $"https://vacdm.tim-u.me/api/v1/pilots";
-
-                var contentRaw = JsonSerializer.Serialize<VacdmPilot>(pilot);
-
-                var content = new StringContent(contentRaw, Encoding.UTF8, "application/json");
-
-                var response = await _client.PostAsync(postUrl, content);
-
-                if (response.Content != null)
-                {
-                    var messageRaw = await response.Content.ReadAsStringAsync();
-
-                    var message = JsonSerializer.Deserialize<VacdmPilot>(messageRaw);
-
-                    if (message is not null)
-                    {
-                        Console.WriteLine(
-                            $"[{DateTime.UtcNow:s}Z] [INFO] Added fake pilot {pilot.Callsign}"
-                        );
-                    }
-                }
+                await AddPilotAsync(pilot);
 
                 await Task.Delay(100);
             }

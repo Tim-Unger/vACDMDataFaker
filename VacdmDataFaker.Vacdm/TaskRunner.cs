@@ -6,6 +6,8 @@ namespace VacdmDataFaker.Vacdm
     {
         private static bool _isInitialized = false;
 
+        private static bool _isFirstLoad = true;
+
         internal static Config Config { get; set; }
 
         internal static async Task Run()
@@ -39,6 +41,17 @@ namespace VacdmDataFaker.Vacdm
                 ) ?? throw new InvalidDataException();
 
             Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Read Config");
+
+            if(_isFirstLoad)
+            {
+                _isFirstLoad = false;
+
+                await VacdmPilotFaker.DeleteAllAsync();
+
+                Console.WriteLine(
+                    $"[{now:s}Z] [INFO] First run, Deleted all old Pilots"
+                );
+            }
 
             while (true)
             {

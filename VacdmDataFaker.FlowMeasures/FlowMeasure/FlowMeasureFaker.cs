@@ -149,7 +149,7 @@ namespace VacdmDataFaker.FlowMeasures
 
             fakeMeasure.Reason = randomReason;
 
-            fakeMeasure.NotifiedFlightInformationRegions = randomNotifiedFirs;
+            fakeMeasure.NotifiedFlightInformationRegions = randomNotifiedFirs.Distinct().ToArray();
             fakeMeasure.Filters = randomFilters;
 
             Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Added Measure {fakeMeasure.Ident}");

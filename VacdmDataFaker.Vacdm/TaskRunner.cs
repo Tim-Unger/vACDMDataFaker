@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 
 namespace VacdmDataFaker.Vacdm
 {
@@ -29,6 +30,9 @@ namespace VacdmDataFaker.Vacdm
 
             Console.WriteLine($"[{now:s}Z] [INFO] TaskRunner initialized");
 
+#if RELEASE
+            Config = GetConfigFromEnv();
+#else
             var jsonOptions = new JsonSerializerOptions()
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -39,6 +43,7 @@ namespace VacdmDataFaker.Vacdm
                     File.ReadAllText($"{Environment.CurrentDirectory}/config.json"),
                     jsonOptions
                 ) ?? throw new InvalidDataException();
+#endif
 
             Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Read Config");
 
@@ -66,6 +71,48 @@ namespace VacdmDataFaker.Vacdm
 
                 await Task.Delay(TimeSpan.FromMinutes(10));
             }
+        }
+
+        private static Config GetConfigFromEnv()
+        {
+            var config = new Config();
+
+            var envCid = Environment.GetEnvironmentVariable("VACDM_CID");
+
+            if(envCid is null)
+            {
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable VACDM_CID was not provided"
+                );
+
+                throw new MissingFieldException();
+            }
+
+            if(!int.TryParse(envCid, out var envCidParsed))
+            {
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable VACDM_CID was not an int"
+                );
+
+                throw new InvalidDataException();
+            }
+
+            config.Cid = envCidParsed;
+
+            var envPassword = Environment.GetEnvironmentVariable("VACDM_PASSWORD");
+
+            if (envPassword is null)
+            {
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable VACDM_PASSWORD was not provided"
+                );
+
+                throw new MissingFieldException();
+            }
+
+            config.Password = envPassword;
+
+            return config;
         }
     }
 }

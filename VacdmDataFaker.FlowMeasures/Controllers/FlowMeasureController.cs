@@ -26,11 +26,15 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
             var credentialBytes = Convert.FromBase64String(authHeader.Parameter!);
             var credentialsRaw = Encoding.UTF8.GetString(credentialBytes).Split(":");
 
+#if RELEASE
+            var config = GetConfigFromEnv();
+#else
             var rawConfig = System.IO.File.ReadAllText(
                 $"{Environment.CurrentDirectory}/config.json"
             );
 
             var config = JsonSerializer.Deserialize<Config>(rawConfig);
+#endif
 
             if (config?.Password is null)
             {
@@ -78,6 +82,39 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
 
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
+        }
+
+        private static Config GetConfigFromEnv()
+        {
+            var config = new Config();
+
+            var envUsername = Environment.GetEnvironmentVariable("ECFMP_USER");
+
+            if(envUsername is null)
+            {
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable ECFMP_USER was not provided"
+                );
+
+                throw new MissingFieldException();
+            }
+
+            config.Username = envUsername;
+
+            var envPassword = Environment.GetEnvironmentVariable("ECFMP_PASSWORD");
+
+            if (envPassword is null)
+            {
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable ECFMP_PASSWORD was not provided"
+                );
+
+                throw new MissingFieldException();
+            }
+
+            config.Password = envPassword;
+
+            return config;
         }
     }
 }

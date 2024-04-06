@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 
 namespace VacdmDataFaker.Vacdm.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class VacdmController : Controller
     {
         [HttpGet("/")]
@@ -10,7 +12,9 @@ namespace VacdmDataFaker.Vacdm.Controllers
         {
             var client = new HttpClient();
 
-            var data = await client.GetFromJsonAsync<List<VacdmPilot>>("https://vacdm.tim-u.me/api/v1/pilots");
+            var data = await client.GetFromJsonAsync<List<VacdmPilot>>(
+                "https://vacdm.tim-u.me/api/v1/pilots"
+            );
 
             return new JsonResult(data);
         }

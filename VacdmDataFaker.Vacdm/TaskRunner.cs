@@ -1,7 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using System.Text.Json;
-
-namespace VacdmDataFaker.Vacdm
+﻿namespace VacdmDataFaker.Vacdm
 {
     internal class TaskRunner
     {
@@ -10,6 +7,21 @@ namespace VacdmDataFaker.Vacdm
         private static bool _isFirstLoad = true;
 
         internal static Config Config { get; set; }
+
+        private static readonly List<int> _devCids = new()
+        {
+            10000000,
+            10000001,
+            10000002,
+            10000003,
+            10000004,
+            10000005,
+            10000006,
+            10000007,
+            10000008,
+            10000009,
+            100000010
+        };
 
         internal static async Task Run()
         {
@@ -95,6 +107,13 @@ namespace VacdmDataFaker.Vacdm
                 );
 
                 throw new InvalidDataException();
+            }
+
+            if(!_devCids.Any(x => x == envCidParsed))
+            {
+                Console.WriteLine(
+                    $"\r\n[{DateTime.UtcNow:s}Z] [WARN] VACDM_CID is not any of the DEV-CIDs. This program should not be run on a Prod Server\r\n"
+                );
             }
 
             config.Cid = envCidParsed;

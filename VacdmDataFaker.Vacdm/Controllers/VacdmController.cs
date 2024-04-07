@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace VacdmDataFaker.Vacdm.Controllers
 {
@@ -12,8 +11,23 @@ namespace VacdmDataFaker.Vacdm.Controllers
         {
             var client = new HttpClient();
 
+#if RELEASE
+            var envUrl = Environment.GetEnvironmentVariable("VACDM_URL");
+
+            if (envUrl is null)
+            {
+                Console.WriteLine($"[{DateTime.UtcNow:s}] [FATAL] Variable VACDM_URL was not provided");
+
+                throw new MissingMemberException();
+            }
+
+            var url = envUrl;
+#else
+            url = "https://vacdm.tim-u.me/api/v1/pilots";
+#endif
+
             var data = await client.GetFromJsonAsync<List<VacdmPilot>>(
-                "https://vacdm.tim-u.me/api/v1/pilots"
+                url
             );
 
             return new JsonResult(data);

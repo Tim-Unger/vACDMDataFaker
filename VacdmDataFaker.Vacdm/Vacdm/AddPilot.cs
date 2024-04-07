@@ -7,7 +7,34 @@ namespace VacdmDataFaker.Vacdm
     {
         internal static async Task AddPilotAsync(VacdmPilot pilot)
         {
+
+#if RELEASE
+            var envUrl = Environment.GetEnvironmentVariable("VACDM_URL");
+
+            if(envUrl is null)
+            {
+                Console.WriteLine($"[{DateTime.UtcNow:s}] [FATAL] Variable VACDM_URL was not provided");
+
+                throw new MissingMemberException();
+            }
+
+            if(!Uri.TryCreate(envUrl, UriKind.Absolute, out var postUri)) 
+            {
+                Console.WriteLine($"[{DateTime.UtcNow:s}] [FATAL] Variable VACDM_URL was not a valid URL");
+
+                throw new InvalidDataException();
+            }
+
+            //Bit stupid but we want to be consistent with var names
+            var postUrl = envUrl;
+#else
             var postUrl = $"https://vacdm.tim-u.me/api/v1/pilots";
+#endif
+
+            if (!postUrl.Contains("api/v1/pilots"))
+            {
+                postUrl += "/api/v1/pilots";
+            }
 
             var contentRaw = JsonSerializer.Serialize<VacdmPilot>(pilot);
 

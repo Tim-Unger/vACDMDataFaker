@@ -22,7 +22,7 @@ services:
       - VACDM_CID=
       - VACDM_PASSWORD=
       - VACDM_URL=
-      - APSNETCORE_URLS=http://*:6001
+      - ASPNETCORE_URLS=http://*:6001
         
   flowmeasures:
     image: timunger/vacdmdatafaker-flowmeasures:latest
@@ -33,5 +33,5 @@ services:
     environment:
       - ECFMP_USER=
       - ECFMP_PASSWORD=
-      - APSNETCORE_URLS=http://*:6000
+      - ASPNETCORE_URLS=http://*:6000
 ```

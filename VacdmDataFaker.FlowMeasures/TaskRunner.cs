@@ -1,8 +1,12 @@
-﻿namespace VacdmDataFaker.FlowMeasures
+﻿using System.Text.Json;
+
+namespace VacdmDataFaker.FlowMeasures
 {
-    public class TaskRunner
+    public static class TaskRunner
     {
         private static bool _isInitialized = false;
+
+        internal static Config Config = new();
 
         internal static async Task Run()
         {
@@ -21,17 +25,40 @@
 
             Console.WriteLine($"[{now:s}Z] [INFO] TaskRunner initialized");
 
+#if RELEASE
+            Config = ReadConfig.FromEnv();
+#else
+            var rawConfig = File.ReadAllText(
+                $"{Environment.CurrentDirectory}/config.json"
+            );
+
+            Config = JsonSerializer.Deserialize<Config>(rawConfig)!;
+#endif
+
+            if (!Config.UpdateAutomatically)
+            {
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [INFO] Automatic updates disabled, data can only be updated through the API"
+                );
+
+                Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] TaskRunner stopped");
+
+                return;
+            }
+
             while (true)
             {
 
                 var nowRunner = DateTime.UtcNow;
                 Console.WriteLine($"[{nowRunner:s}Z] [INFO] Running Tasks");
 
-                FlowMeasureFaker.FakeMeasures(10);
+                FlowMeasureFaker.FakeMeasures(Config.InitialAmount);
 
-                Console.WriteLine($"[{nowRunner:s}Z] [INFO] Success, added 10 Measures, Next Update at: {nowRunner.AddMinutes(10):HH:mm}Z");
+                var updateInterval = Config.UpdateInterval;
 
-                await Task.Delay(TimeSpan.FromMinutes(10));
+                Console.WriteLine($"[{nowRunner:s}Z] [INFO] Success, added 10 Measures, Next Update at: {nowRunner.AddMinutes(updateInterval):HH:mm}Z");
+
+                await Task.Delay(TimeSpan.FromMinutes(updateInterval));
             }
         }
     }

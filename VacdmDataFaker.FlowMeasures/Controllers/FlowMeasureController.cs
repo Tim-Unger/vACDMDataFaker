@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
+using VacdmDataFaker.Vacdm;
 
 namespace VacdmDataFaker.FlowMeasures.Controllers
 {
@@ -11,110 +9,85 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
     public class FlowMeasureController : Controller
     {
         [HttpGet("/data")]
-        [HttpGet("/")]
         public JsonResult Get() => new(FlowMeasureFaker.FlowMeasures);
 
-        [HttpPost("/data/fake/{count}")]
-        public HttpResponseMessage PostCount(int count) => Post(count);
-
-        [HttpPost("/data/fake")]
-        public HttpResponseMessage Post(int? count)
+        [HttpPost("/add/{count}")]
+        public string Post(int count)
         {
-            var authHeader = AuthenticationHeaderValue.Parse(
-                HttpContext.Request.Headers["Authorization"]
-            );
-            var credentialBytes = Convert.FromBase64String(authHeader.Parameter!);
-            var credentialsRaw = Encoding.UTF8.GetString(credentialBytes).Split(":");
+            var context = HttpContext;
 
-#if RELEASE
-            var config = GetConfigFromEnv();
-#else
-            var rawConfig = System.IO.File.ReadAllText(
-                $"{Environment.CurrentDirectory}/config.json"
-            );
+            var authenticateSuccess = ApiAuthenticator.AuthenticateUser(context);
 
-            var config = JsonSerializer.Deserialize<Config>(rawConfig);
-#endif
-
-            if (config?.Password is null)
+            if (authenticateSuccess != HttpStatusCode.OK)
             {
-                var now = DateTime.UtcNow;
+                Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] Authetification for POST Request failed");
 
-                Console.WriteLine($"[{now:s}] [WARN] Post failed as config is not valid");
-
-                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
-            }
-
-            var passedConfig = new Config()
-            {
-                Username = credentialsRaw[0],
-                Password = credentialsRaw[1]
-            };
-
-            if (
-                config.Password != passedConfig.Password || config.Username != passedConfig.Username
-            )
-            {
-                var now = DateTime.UtcNow;
-
-                Console.WriteLine($"[{now:s}] [WARN] Post failed as password or username were invalid");
-
-                return new HttpResponseMessage(HttpStatusCode.Unauthorized);
+                return "unauthorized";
             }
 
             try
             {
                 var now = DateTime.UtcNow;
 
-                var addCount = count ?? 10;
+                Console.WriteLine($"[{now:s}] [INFO] Adding {count} through POST");
 
-                Console.WriteLine($"[{now:s}] [INFO] Adding {addCount} through Post");
+                FlowMeasureFaker.FakeMeasures(count);
 
-                FlowMeasureFaker.FakeMeasures(addCount);
-
-                return new HttpResponseMessage(HttpStatusCode.OK);
+                return "success";
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 var now = DateTime.UtcNow;
 
                 Console.WriteLine($"[{now:s}] [WARN] Post failed: {ex.InnerException}");
 
-                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                return "error, see logs";
             }
         }
 
-        private static Config GetConfigFromEnv()
+        [HttpDelete("/delete/all")]
+        [HttpDelete("/delete/{count}")]
+        public string Delete(int? count)
         {
-            var config = new Config();
+            var context = HttpContext;
 
-            var envUsername = Environment.GetEnvironmentVariable("ECFMP_USER");
+            var authenticateSuccess = ApiAuthenticator.AuthenticateUser(context);
 
-            if(envUsername is null)
+            if (authenticateSuccess != HttpStatusCode.OK)
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable ECFMP_USER was not provided"
-                );
-
-                throw new MissingFieldException();
+                return authenticateSuccess.ToString().ToLower();
             }
 
-            config.Username = envUsername;
-
-            var envPassword = Environment.GetEnvironmentVariable("ECFMP_PASSWORD");
-
-            if (envPassword is null)
+            try
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable ECFMP_PASSWORD was not provided"
-                );
+                if (count is null)
+                {
+                    FlowMeasureFaker.DeleteMeasures(null);
 
-                throw new MissingFieldException();
+                    Console.WriteLine($"[{DateTime.UtcNow:s}] [INFO] Deleted all Flow Measures");
+
+                    return "success";
+                }
+
+                if (count <= 0)
+                {
+                    Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] Delete failed, invalid count was provided");
+
+                    return "invalid count value";
+                }
+
+                FlowMeasureFaker.DeleteMeasures(count);
+
+                Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Deleted {count} measures through DELETE");
+
+                return "success";
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] DELETE failed: {ex.InnerException}");
 
-            config.Password = envPassword;
-
-            return config;
+                return "error, see logs";
+            }
         }
     }
 }

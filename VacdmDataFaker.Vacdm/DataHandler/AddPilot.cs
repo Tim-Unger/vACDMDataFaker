@@ -9,26 +9,19 @@ namespace VacdmDataFaker.Vacdm
         {
 
 #if RELEASE
-            var envUrl = Environment.GetEnvironmentVariable("VACDM_URL");
+            var configUrl = TaskRunner.Config.Url;
 
-            if(envUrl is null)
+            if(configUrl is null)
             {
                 Console.WriteLine($"[{DateTime.UtcNow:s}] [FATAL] Variable VACDM_URL was not provided");
 
                 throw new MissingMemberException();
             }
 
-            if(!Uri.TryCreate(envUrl, UriKind.Absolute, out var postUri)) 
-            {
-                Console.WriteLine($"[{DateTime.UtcNow:s}] [FATAL] Variable VACDM_URL was not a valid URL");
-
-                throw new InvalidDataException();
-            }
-
             //Bit stupid but we want to be consistent with var names
-            var postUrl = envUrl;
+            var postUrl = configUrl;
 #else
-            var postUrl = $"https://vacdm.tim-u.me/api/v1/pilots";
+            var postUrl = TaskRunner.Config.Url;
 #endif
 
             if (!postUrl.Contains("api/v1/pilots"))

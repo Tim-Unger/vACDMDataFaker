@@ -2,12 +2,14 @@
 
 namespace VacdmDataFaker.Vacdm
 {
-    public partial class VacdmPilotFaker
+    public static partial class VacdmPilotFaker
     {
         internal static async Task<IEnumerable<string>> GetCurrentPilots()
         {
+            var url = TaskRunner.Config.Url;
+
             var currentPilotsRaw = await Client.GetStringAsync(
-                "https://vacdm.tim-u.me/api/v1/pilots"
+                url
             );
 
             if (currentPilotsRaw is null)

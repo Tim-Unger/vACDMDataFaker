@@ -87,21 +87,19 @@ namespace VacdmDataFaker.Vacdm
                 Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] No Pilots active at the moment");
             }
 
-            int remainingCallsigns = currentCallsigns.Count();
+            int callsignCount = currentCallsigns.Count();
+
+            var config = TaskRunner.Config;
 
             foreach (var currentCallsign in currentCallsigns)
             {
-                if (currentCallsigns.Count() < 15)
+                //Delete Pilots until we reach the minimum amount required
+                if (callsignCount <= config.MinimumAmount)
                 {
                     break;
                 }
 
-                if (remainingCallsigns < 20)
-                {
-                    break;
-                }
-
-                remainingCallsigns--;
+                callsignCount--;
 
                 await DeletePilotAsync(currentCallsign);
                 
@@ -110,12 +108,19 @@ namespace VacdmDataFaker.Vacdm
 
             foreach (var pilot in updatedPilots)
             {
+                //Add pilots until we reach the maximum amount (or the foreach loop completes, whatever is first)
+                if(callsignCount >= config.MaximumAmount)
+                {
+                    return;
+                }
+
                 if (currentCallsigns.Any(x => x == pilot.Callsign))
                 {
                     continue;
                 }
 
                 await AddPilotAsync(pilot);
+                callsignCount++;
 
                 await Task.Delay(100);
             }

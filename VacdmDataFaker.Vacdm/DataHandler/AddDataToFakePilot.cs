@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace VacdmDataFaker.Vacdm
+﻿namespace VacdmDataFaker.Vacdm
 {
     public partial class VacdmPilotFaker
     {

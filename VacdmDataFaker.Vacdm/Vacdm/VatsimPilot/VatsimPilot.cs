@@ -1,6 +1,7 @@
 ﻿namespace VacdmDataFaker.Vacdm
 {
 
+#pragma warning disable 8618
     public class VatsimData
     {
         public General general { get; set; }
@@ -11,8 +12,8 @@
         public Prefile[] prefiles { get; set; }
         public Facility[] facilities { get; set; }
         public Rating[] ratings { get; set; }
-        public Pilot_Ratings[] pilot_ratings { get; set; }
-        public Military_Ratings[] military_ratings { get; set; }
+        public PilotRatings[] pilot_ratings { get; set; }
+        public MilitaryRatings[] military_ratings { get; set; }
     }
 
     public class General
@@ -113,28 +114,8 @@
         public int cid { get; set; }
         public string name { get; set; }
         public string callsign { get; set; }
-        public Flight_Plan1 flight_plan { get; set; }
+        public FlightPlan flight_plan { get; set; }
         public DateTime last_updated { get; set; }
-    }
-
-    public class Flight_Plan1
-    {
-        public string flight_rules { get; set; }
-        public string aircraft { get; set; }
-        public string aircraft_faa { get; set; }
-        public string aircraft_short { get; set; }
-        public string departure { get; set; }
-        public string arrival { get; set; }
-        public string alternate { get; set; }
-        public string cruise_tas { get; set; }
-        public string altitude { get; set; }
-        public string deptime { get; set; }
-        public string enroute_time { get; set; }
-        public string fuel_time { get; set; }
-        public string remarks { get; set; }
-        public string route { get; set; }
-        public int revision_id { get; set; }
-        public string assigned_transponder { get; set; }
     }
 
     public class Facility
@@ -151,14 +132,14 @@
         public string _long { get; set; }
     }
 
-    public class Pilot_Ratings
+    public class PilotRatings
     {
         public int id { get; set; }
         public string short_name { get; set; }
         public string long_name { get; set; }
     }
 
-    public class Military_Ratings
+    public class MilitaryRatings
     {
         public int id { get; set; }
         public string short_name { get; set; }

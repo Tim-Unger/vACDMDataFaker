@@ -9,5 +9,14 @@ namespace VacdmDataFaker.FlowMeasures
 
         [JsonPropertyName("password")]
         public string Password { get; set; }
+
+        [JsonPropertyName("updateAutomatically")]
+        public bool UpdateAutomatically { get; set; } = true;
+
+        [JsonPropertyName("updateInterval")]
+        public int UpdateInterval { get; set; } = 10;
+
+        [JsonPropertyName("initialAmount")]
+        public int InitialAmount { get; set; } = 10;
     }
 }

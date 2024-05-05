@@ -1,10 +1,16 @@
-# Docker Compose
+# vACDMDataFaker
 
-Make sure to set the Environment Variables accordingly 
-(I highly recommend using a [Vatsim-Dev](https://vatsim.dev/services/connect/sandbox/) environment for the vACDM user, **please don't run this on a prod server**). The program will add Pilots with nonsense Flightplans, SIDs and Runways to the vACDM-Data\
-The program will warn you on startup if you do not use any of the Dev-CIDs. 
+A program that creates and continuously updates fake data for [vACDM](https://github.com/vACDM) and [ECFMP](https://ecfmp.vatsim.net) mainly for development purposes. \
+The vACDM-Faker requires/interacts with a vACDM-Instance (Setup [here](https://vacdm.net/docs/developer/installation)), to put the data somewhere.
 
-## Sample Docker Compose
+## Docker Compose
+
+Make sure to set the Environment Variables accordingly \
+I highly recommend running the vACDM-Faker only inside a Vatsim-Dev-Environment, you shouldn't run this with actual CIDs \
+The ECFMP-Faker runs on itself and does not interact with any other Vatsim-Services
+Unless explicitly allowed by the Env-Variable, the vACDM-Faker will only run with Dev-CIDs (more info [here](https://vatsim.dev/services/connect/sandbox/))
+
+### Minimal Docker Compose
 
 ```yaml
 
@@ -35,7 +41,7 @@ services:
       - ASPNETCORE_URLS=http://*:6002
 ```
 
-## Environment Variables
+### Environment Variables
 
 **Bold is required** The rest is optional
 
@@ -64,3 +70,7 @@ services:
 | UPDATE_INTERVAL (optional)      | int         | Amount in minutes the data will be updated automatically *(Default = 10 min.)*                                                                               |
 | MINIMUM_AMOUNT (optional)       | int         | Minimum amount of measures that should be present. Will only be used by the automatic update, is ignored when making a request through the API *(Default = 10)* |
 | REQUIRE_AUTH_FOR_LOGS (optional)| bool        | Whether the GET Endpoint that is used to access the Log-JSON requires authentication *(Default = true)*                                                       |
+
+## API
+
+Both programs have a small API to access and update/delete the data. The API-Docs can be found at the root of the URL of your instance

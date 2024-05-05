@@ -49,7 +49,8 @@ services:
 | MINIMUM_AMOUNT (optional)       | int    | Minimum amount of pilots that should be present. Will only be used by the automatic update, is ignored when making a request through the API *(Default = 10)* |
 | MAXIMUM_AMOUNT (optional)       | int    | Maximum amount of pilots that should be present. Will only be used by the automatic update, is ignored when making a request through the API *(Default = 50)* |
 | REQUIRE_AUTH_FOR_LOGS (optional)| bool   | Whether the GET Endpoint that is used to access the Log-JSON requires authentication *(Default = true)*                                                      |
-| ALLOW_NON_DEV_CIDS              | bool   | Whether the program can be used with non-dev CIDs **(Not recommended)** *(Default = false)*                                                                 |
+| ALLOW_NON_DEV_CIDS (optional)   | bool   | Whether the program can be used with non-dev CIDs **(Not recommended)** *(Default = false)*                                                                 |
+| AIRPORTS (optional)             | string | Comma separated List of airports that should be checked/used for the fake data (only Vatsim-Flights that use this ICAO are used, so don't use dead airports) *(Default = EDDF,EDDS,EDDK,EDDM,EDDL,EDDH,EDDB)*|
 
 **ECFMP**
 

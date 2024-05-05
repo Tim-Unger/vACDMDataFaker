@@ -33,5 +33,9 @@ namespace VacdmDataFaker.Shared
 
         [JsonPropertyName("allowNonDevCids")]
         public bool AllowNonDevCids { get; set; } = false;
+
+        [JsonPropertyName("airports")]
+        public List<string> Airports { get; set; } =
+            new() { "EDDF", "EDDS", "EDDK", "EDDM", "EDDL", "EDDH", "EDDB" };
     }
 }

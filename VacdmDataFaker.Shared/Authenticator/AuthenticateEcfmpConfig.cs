@@ -18,7 +18,7 @@ namespace VacdmDataFaker.Shared
             var configPassword = Environment.GetEnvironmentVariable("ECFMP_PASSWORD")!;
 #else
             var rawConfig = File.ReadAllText(
-                $"{Environment.CurrentDirectory}/config.json"
+                $"{Environment.CurrentDirectory}/Data/config.json"
             );
 
             var config = JsonSerializer.Deserialize<EcfmpConfig>(rawConfig);

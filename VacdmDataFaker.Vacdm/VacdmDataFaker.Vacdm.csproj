@@ -21,4 +21,10 @@
     <ProjectReference Include="..\VacdmDataFaker.Shared\VacdmDataFaker.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\airports.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

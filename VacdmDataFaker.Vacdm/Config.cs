@@ -35,6 +35,10 @@ namespace VacdmDataFaker.Vacdm
         [JsonPropertyName("allowNonDevCids")]
         public bool AllowNonDevCids { get; set; } = false;
 
+        [JsonPropertyName("airports")]
+        public List<string> Airports { get; set; } =
+            new() { "EDDF", "EDDS", "EDDK", "EDDM", "EDDL", "EDDH", "EDDB" };
+
         //Casting Shared.VacdmConfig to Config
         public static implicit operator Config(VacdmConfig v)
         {
@@ -49,7 +53,8 @@ namespace VacdmDataFaker.Vacdm
                 MaximumAmount = v.MaximumAmount,
                 DeleteAllOnStartup = v.DeleteAllOnStartup,
                 RequireAuthenticationForLogs = v.RequireAuthenticationForLogs,
-                AllowNonDevCids = v.AllowNonDevCids
+                AllowNonDevCids = v.AllowNonDevCids,
+                Airports = v.Airports,
             };
         }
     }

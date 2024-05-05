@@ -14,7 +14,7 @@
 
             for (int i = 0; i < deleteCount; i++)
             {
-                //Delete the first measure, since everything moves up after deleting the first one, we can always delete the oldest
+                //Delete the first measure, since everything moves up after deleting the first one, we can always delete the oldest/first
                 FlowMeasures.RemoveAt(0);
             }
         }

@@ -38,13 +38,6 @@
                 throw new InvalidDataException();
             }
 
-            //if (!_devCids.Any(x => x == envCidParsed))
-            //{
-            //    Console.WriteLine(
-            //        $"\r\n[{DateTime.UtcNow:s}Z] [WARN] VACDM_CID is not any of the DEV-CIDs. This program should not be run on a Prod Server\r\n"
-            //    );
-            //}
-
             config.Cid = envCidParsed;
 
             var envPassword = Environment.GetEnvironmentVariable("VACDM_PASSWORD");
@@ -128,9 +121,9 @@
 
             var allowNonDevCids = false;
 
-            if(envAllowNonDevCids is not null)
+            if (envAllowNonDevCids is not null)
             {
-                if(!bool.TryParse(envAllowNonDevCids, out allowNonDevCids))
+                if (!bool.TryParse(envAllowNonDevCids, out allowNonDevCids))
                 {
                     LogVariableInvalidType("ALLOW_NON_DEV_CIDS");
 
@@ -142,8 +135,51 @@
 
             if (!allowNonDevCids && !_devCids.Any(x => x == envCidParsed))
             {
-                Console.WriteLine($"[{DateTime.UtcNow:s}Z] [FATAL] Program is not allowed to run with a non-dev CID");
+                Console.WriteLine(
+                    $"[{DateTime.UtcNow:s}Z] [FATAL] Program is not allowed to run with a non-dev CID"
+                );
                 throw new InvalidDataException();
+            }
+
+            var envAirports = Environment.GetEnvironmentVariable("AIRPORTS");
+
+            if (envAirports is not null)
+            {
+                var splitAirports = envAirports.Split(',');
+
+                var formattedAirports = new List<string>();
+
+                var allIcaosRaw = File.ReadAllText(
+                    $"{Environment.CurrentDirectory}/Data/airports.txt"
+                );
+
+                //Only Airports that have an ICAO with the same criteria as below
+                var allIcaosList = allIcaosRaw
+                    .Split("\r\n")
+                    .Where(x => x.Length == 4)
+                    .Where(x => x.All(y => char.IsLetter(y)))
+                    .ToList();
+
+                foreach (var airport in splitAirports)
+                {
+                    var airportFormatted = airport.ToUpper().Trim();
+
+                    //Check if the string is a valid ICAO
+                    if (
+                        airportFormatted.Length != 4 //4 Chars long
+                        || airportFormatted.ToCharArray().Any(x => !char.IsLetter(x)) //only Letters allowed
+                        || !allIcaosList.Any(x => x == airportFormatted) //has to be an actual real ICAO Code
+                    )
+                    {
+                        //NORELEASE Log all throws
+                        Console.WriteLine(
+                            $"[{DateTime.UtcNow:s}Z] [FATAL] {airportFormatted} was not a valid Airport-ICAO"
+                        );
+                        throw new InvalidDataException();
+                    }
+                }
+
+                config.Airports = formattedAirports.Distinct().ToList();
             }
 
             var envUpdateAutomcatically = Environment.GetEnvironmentVariable(
@@ -172,7 +208,7 @@
 
             if (envDeleteOnStartup is not null)
             {
-                if(!bool.TryParse(envDeleteOnStartup, out var deleteAllOnStartupParsed))
+                if (!bool.TryParse(envDeleteOnStartup, out var deleteAllOnStartupParsed))
                 {
                     LogVariableInvalidType("DELETE_ALL_ON_STARTUP");
 
@@ -204,6 +240,9 @@
             return config;
         }
 
-        private static void LogVariableInvalidType(string envVariable) => Console.WriteLine($"[{DateTime.UtcNow:s}Z] [FATAL] Variable {envVariable.ToUpper()} was not an int");
+        private static void LogVariableInvalidType(string envVariable) =>
+            Console.WriteLine(
+                $"[{DateTime.UtcNow:s}Z] [FATAL] Variable {envVariable.ToUpper()} was not an int"
+            );
     }
 }

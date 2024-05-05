@@ -28,7 +28,7 @@ namespace VacdmDataFaker.FlowMeasures
             Config = ConfigReader.ReadEcfmpConfig();
 #else
             var rawConfig = File.ReadAllText(
-                $"{Environment.CurrentDirectory}/config.json"
+                $"{Environment.CurrentDirectory}/Data/config.json"
             );
 
             Config = JsonSerializer.Deserialize<Config>(rawConfig)!;

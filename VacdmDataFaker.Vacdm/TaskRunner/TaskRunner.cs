@@ -59,7 +59,7 @@ namespace VacdmDataFaker.Vacdm
 
             Config =
                 JsonSerializer.Deserialize<Config>(
-                    File.ReadAllText($"{Environment.CurrentDirectory}/config.json"),
+                    File.ReadAllText($"{Environment.CurrentDirectory}/Data/config.json"),
                     jsonOptions
                 ) ?? throw new InvalidDataException();
 

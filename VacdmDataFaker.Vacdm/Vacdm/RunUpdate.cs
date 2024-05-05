@@ -27,16 +27,7 @@ namespace VacdmDataFaker.Vacdm
 
             var vatsimPilots = JsonSerializer.Deserialize<VatsimData>(vatsimPilotsRaw)!.pilots;
 
-            var aerodromes = new string[]
-            {
-                "EDDF",
-                "EDDS",
-                "EDDK",
-                "EDDM",
-                "EDDL",
-                "EDDH",
-                "EDDB"
-            };
+            var aerodromes = TaskRunner.Config.Airports;
 
             var concernedPilots = vatsimPilots
                 .Where(x => x.flight_plan is not null)

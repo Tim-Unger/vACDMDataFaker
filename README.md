@@ -35,6 +35,8 @@ services:
 
 ## Environment Variables
 
+**Bold is required** The rest is optional
+
 **vACDM:**
 
 | Name                            | Type   | Description                                                                                                                                                 |
@@ -42,10 +44,12 @@ services:
 | **VACDM_CID**                  | int    | CID of the vACDM User (used for API-Requests)                                                                                                               |
 | **VACDM_PASSWORD**            | string | Password for the CID above                                                                                                                                  |
 | **VACDM_URL**                  | string | URL of the vACDM-Server. Please format as follows: {VACDM_URL}/api/v1/pilots.                                                                               |
-| UPDATE_AUTOMATICALLY (optional) | bool   | Whether the data should be updated automatically (If not, new pilots can only be added through the API)                                                     |
-| UPDATE_INTERVAL (optional)      | int    | Amount in minutes the data will be updated automatically (Default = 10 min.)                                                                                |
-| MINIMUM_AMOUNT (optional)       | int    | Minimum amount of pilots that should be present. Will only be used by the automatic update, is ignored when making a request through the API (Default = 10) |
-| MAXIMUM_AMOUNT (optional)       | int    | Maximum amount of pilots that should be present. Will only be used by the automatic update, is ignored when making a request through the API (Default = 50) |
+| UPDATE_AUTOMATICALLY (optional) | bool   | Whether the data should be updated automatically (If not, new pilots can only be added through the API)  *(Default = true)*                                   |
+| UPDATE_INTERVAL (optional)      | int    | Amount in minutes the data will be updated automatically *(Default = 10 min.)*                                                                               |
+| MINIMUM_AMOUNT (optional)       | int    | Minimum amount of pilots that should be present. Will only be used by the automatic update, is ignored when making a request through the API *(Default = 10)* |
+| MAXIMUM_AMOUNT (optional)       | int    | Maximum amount of pilots that should be present. Will only be used by the automatic update, is ignored when making a request through the API *(Default = 50)* |
+| REQUIRE_AUTH_FOR_LOGS (optional)| bool   | Whether the GET Endpoint that is used to access the Log-JSON requires authentication *(Default = true)*                                                      |
+| ALLOW_NON_DEV_CIDS              | bool   | Whether the program can be used with non-dev CIDs **(Not recommended)** *(Default = false)*                                                                 |
 
 **ECFMP**
 
@@ -53,6 +57,7 @@ services:
 | ---------                       |-----        | -----------                                                                                                                                                 |
 | **ECFMP_USER**                | string       | Username used for authentication with the API. You can choose any username you like                                                                         |
 | **ECFMP_PASSWORD**            | string      | Password used for authentication with the API                                                                                                               |
-| UPDATE_AUTOMATICALLY (optional) | bool        | Whether the data should be updated automatically (If not, new pilots can only be added through the API)                                                     |
-| UPDATE_INTERVAL (optional)      | int         | Amount in minutes the data will be updated automatically (Default = 10 min.)                                                                                |
-| MINIMUM_AMOUNT (optional)       | int         | Minimum amount of pilots that should be present. Will only be used by the automatic update, is ignored when making a request through the API (Default = 10) |
+| UPDATE_AUTOMATICALLY (optional) | bool        | Whether the data should be updated automatically (If not, new pilots can only be added through the API) *(Default = true)*                                   |
+| UPDATE_INTERVAL (optional)      | int         | Amount in minutes the data will be updated automatically *(Default = 10 min.)*                                                                               |
+| MINIMUM_AMOUNT (optional)       | int         | Minimum amount of measures that should be present. Will only be used by the automatic update, is ignored when making a request through the API *(Default = 10)* |
+| REQUIRE_AUTH_FOR_LOGS (optional)| bool        | Whether the GET Endpoint that is used to access the Log-JSON requires authentication *(Default = true)*                                                       |

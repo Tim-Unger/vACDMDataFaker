@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using VacdmDataFaker.Shared;
 
 namespace VacdmDataFaker.FlowMeasures
 {
@@ -8,25 +9,23 @@ namespace VacdmDataFaker.FlowMeasures
 
         internal static Config Config = new();
 
+        internal static List<LogMessage> LogMessages = new();
+
         internal static async Task Run()
         {
             if (_isInitialized)
             {
-                var nowErr = DateTime.UtcNow;
-
-                Console.WriteLine($"[{nowErr:s}Z] [FATAL] TaskRunnter was trying to be initialized but is already running");
+                LogMessages.Add(Logger.LogFatal("TaskRunner was trying to be initialized but is already running"));
 
                 throw new InvalidOperationException("TaskRunner is already running");
             }
 
             _isInitialized = true;
 
-            var now = DateTime.UtcNow;
-
-            Console.WriteLine($"[{now:s}Z] [INFO] TaskRunner initialized");
+            LogMessages.Add(Logger.LogInfo("TaskRunnter initialized"));
 
 #if RELEASE
-            Config = ReadConfig.FromEnv();
+            Config = ConfigReader.ReadEcfmpConfig();
 #else
             var rawConfig = File.ReadAllText(
                 $"{Environment.CurrentDirectory}/config.json"
@@ -37,26 +36,20 @@ namespace VacdmDataFaker.FlowMeasures
 
             if (!Config.UpdateAutomatically)
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [INFO] Automatic updates disabled, data can only be updated through the API"
-                );
-
-                Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] TaskRunner stopped");
-
+                LogMessages.Add(Logger.LogInfo("Automatic updates disabled, data can only be updated through the API"));
+                LogMessages.Add(Logger.LogInfo("TaskRunner stopped"));
                 return;
             }
 
             while (true)
             {
-
-                var nowRunner = DateTime.UtcNow;
-                Console.WriteLine($"[{nowRunner:s}Z] [INFO] Running Tasks");
+                LogMessages.Add(Logger.LogInfo("Running Tasks"));
 
                 FlowMeasureFaker.FakeMeasures(Config.InitialAmount);
 
                 var updateInterval = Config.UpdateInterval;
 
-                Console.WriteLine($"[{nowRunner:s}Z] [INFO] Success, added 10 Measures, Next Update at: {nowRunner.AddMinutes(updateInterval):HH:mm}Z");
+                LogMessages.Add(Logger.LogInfo($"Success, added 10 Measures, Next Update at: {DateTime.UtcNow.AddMinutes(updateInterval):HH:mm}Z"));
 
                 await Task.Delay(TimeSpan.FromMinutes(updateInterval));
             }

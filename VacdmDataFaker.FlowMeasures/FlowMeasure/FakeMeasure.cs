@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using VacdmDataFaker.Shared;
 
 namespace VacdmDataFaker.FlowMeasures
 {
@@ -39,6 +40,12 @@ namespace VacdmDataFaker.FlowMeasures
 
             randomFilters = randomFilters.DistinctBy(x => x.Type).ToList();
 
+            //DEP or ARR are always required
+            if (!new[] { "ARR", "DEP" }.Any(x => randomFilters.Any(y => x == y.Type)))
+            {
+                randomFilters.Add(new Filter() { Type = "DEP", Value = "****" });
+            }
+
             var flowMeasureFaker = new Faker<FlowMeasure>()
                 .RuleFor(x => x.Id, y => y.Random.Int(0, 9999))
                 .RuleFor(x => x.Ident, y => $"{y.Random.String2(4).ToUpper()}{y.Random.Int(1, 6)}{y.Random.String2(1).ToUpper()}")
@@ -70,7 +77,7 @@ namespace VacdmDataFaker.FlowMeasures
             fakeMeasure.NotifiedFlightInformationRegions = randomNotifiedFirs.Distinct().ToArray();
             fakeMeasure.Filters = randomFilters;
 
-            Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Added Measure {fakeMeasure.Ident}");
+            TaskRunner.LogMessages.Add(Logger.LogInfo($"Added Measure {fakeMeasure.Ident}"));
 
             return fakeMeasure;
         }

@@ -1,10 +1,10 @@
-﻿namespace VacdmDataFaker.FlowMeasures
+﻿namespace VacdmDataFaker.Shared
 {
-    internal static class ReadConfig
+    public static partial class ConfigReader
     {
-        internal static Config FromEnv()
+        private static EcfmpConfig ReadEcfmp()
         {
-            var config = new Config();
+            var config = new EcfmpConfig();
 
             var envUsername = Environment.GetEnvironmentVariable("ECFMP_USER");
 
@@ -51,6 +51,23 @@
             }
 
             config.InitialAmount = initialAmount;
+
+            var envRequireAuthForLogs = Environment.GetEnvironmentVariable("REQUIRE_AUTH_FOR_LOGS");
+
+            if (envRequireAuthForLogs is not null)
+            {
+
+                if (!bool.TryParse(envRequireAuthForLogs, out var requireAuthForLogs))
+                {
+                    Console.WriteLine(
+                        $"[{DateTime.UtcNow:s}Z] [FATAL] Variable REQUIRE_AUTH_FOR_LOGS was not a bool"
+                    );
+
+                    throw new InvalidDataException();
+                }
+
+                config.RequireAuthentificationForLogs = requireAuthForLogs;
+            }
 
             var envUpdateAutomcatically = Environment.GetEnvironmentVariable("UPDATE_AUTOMATICALLY");
 

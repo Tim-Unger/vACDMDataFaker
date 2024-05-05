@@ -1,6 +1,6 @@
-﻿namespace VacdmDataFaker.Vacdm
+﻿namespace VacdmDataFaker.Shared
 {
-    internal static class ReadConfig
+    public static partial class ConfigReader
     {
         private static readonly List<int> _devCids =
             new()
@@ -18,36 +18,32 @@
                 100000010
             };
 
-        internal static Config FromEnv()
+        private static VacdmConfig ReadVacdm()
         {
-            var config = new Config();
+            var config = new VacdmConfig();
 
-            var envCid = Environment.GetEnvironmentVariable("VACDM_CID");
+            var envCid = Environment.GetEnvironmentVariable("");
 
             if (envCid is null)
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable VACDM_CID was not provided"
-                );
+                LogVariableInvalidType("VACDM_CID");
 
                 throw new MissingFieldException();
             }
 
             if (!int.TryParse(envCid, out var envCidParsed))
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable VACDM_CID was not an int"
-                );
+                LogVariableInvalidType("VACDM_CID");
 
                 throw new InvalidDataException();
             }
 
-            if (!_devCids.Any(x => x == envCidParsed))
-            {
-                Console.WriteLine(
-                    $"\r\n[{DateTime.UtcNow:s}Z] [WARN] VACDM_CID is not any of the DEV-CIDs. This program should not be run on a Prod Server\r\n"
-                );
-            }
+            //if (!_devCids.Any(x => x == envCidParsed))
+            //{
+            //    Console.WriteLine(
+            //        $"\r\n[{DateTime.UtcNow:s}Z] [WARN] VACDM_CID is not any of the DEV-CIDs. This program should not be run on a Prod Server\r\n"
+            //    );
+            //}
 
             config.Cid = envCidParsed;
 
@@ -55,9 +51,7 @@
 
             if (envPassword is null)
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable VACDM_PASSWORD was not provided"
-                );
+                LogVariableInvalidType("VACDM_PASSWORD");
 
                 throw new MissingFieldException();
             }
@@ -72,9 +66,7 @@
             {
                 if (!int.TryParse(envMinimumAmount, out var mimimumAmountParsed))
                 {
-                    Console.WriteLine(
-                        $"[{DateTime.UtcNow:s}Z] [FATAL] Variable MIMIMUM_AMOUNT was not an int"
-                    );
+                    LogVariableInvalidType("MIMIMUM_AMOUNT");
 
                     throw new InvalidDataException();
                 }
@@ -101,9 +93,7 @@
             {
                 if (!int.TryParse(envMaximumAmount, out var maximumAmountParsed))
                 {
-                    Console.WriteLine(
-                        $"[{DateTime.UtcNow:s}Z] [FATAL] Variable MAXIMUM_AMOUNT was not an int"
-                    );
+                    LogVariableInvalidType("MAXIMUM_AMOUNT");
 
                     throw new InvalidDataException();
                 }
@@ -122,6 +112,40 @@
 
             config.MaximumAmount = maximumAmount;
 
+            var envRequireAuthForLogs = Environment.GetEnvironmentVariable("REQUIRE_AUTH_FOR_LOGS");
+
+            if (envRequireAuthForLogs is not null)
+            {
+                if (!bool.TryParse(envRequireAuthForLogs, out var requireAuth))
+                {
+                    LogVariableInvalidType("REQUIRE_AUTH_FOR_LOGS");
+                }
+
+                config.RequireAuthenticationForLogs = requireAuth;
+            }
+
+            var envAllowNonDevCids = Environment.GetEnvironmentVariable("ALLOW_NON_DEV_CIDS");
+
+            var allowNonDevCids = false;
+
+            if(envAllowNonDevCids is not null)
+            {
+                if(!bool.TryParse(envAllowNonDevCids, out allowNonDevCids))
+                {
+                    LogVariableInvalidType("ALLOW_NON_DEV_CIDS");
+
+                    throw new InvalidDataException();
+                }
+
+                config.AllowNonDevCids = allowNonDevCids;
+            }
+
+            if (!allowNonDevCids && !_devCids.Any(x => x == envCidParsed))
+            {
+                Console.WriteLine($"[{DateTime.UtcNow:s}Z] [FATAL] Program is not allowed to run with a non-dev CID");
+                throw new InvalidDataException();
+            }
+
             var envUpdateAutomcatically = Environment.GetEnvironmentVariable(
                 "UPDATE_AUTOMATICALLY"
             );
@@ -135,9 +159,7 @@
 
             if (!bool.TryParse(envUpdateAutomcatically, out var shouldUpdateAutomatically))
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable UPDATE_AUTOMATICALLY was not a bool"
-                );
+                LogVariableInvalidType("UPDATE_AUTOMATICALLY");
 
                 throw new InvalidDataException();
             }
@@ -152,9 +174,7 @@
             {
                 if(!bool.TryParse(envDeleteOnStartup, out var deleteAllOnStartupParsed))
                 {
-                    Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable DELETE_ALL_ON_STARTUP was not a bool"
-                );
+                    LogVariableInvalidType("DELETE_ALL_ON_STARTUP");
 
                     throw new InvalidDataException();
                 }
@@ -174,9 +194,7 @@
 
             if (!int.TryParse(envUpdateInterval, out var updateInterval))
             {
-                Console.WriteLine(
-                    $"[{DateTime.UtcNow:s}Z] [FATAL] Variable UPDATE_INTERVAL was not an int"
-                );
+                LogVariableInvalidType("UPDATE_INTERVAL");
 
                 throw new InvalidDataException();
             }
@@ -185,5 +203,7 @@
 
             return config;
         }
+
+        private static void LogVariableInvalidType(string envVariable) => Console.WriteLine($"[{DateTime.UtcNow:s}Z] [FATAL] Variable {envVariable.ToUpper()} was not an int");
     }
 }

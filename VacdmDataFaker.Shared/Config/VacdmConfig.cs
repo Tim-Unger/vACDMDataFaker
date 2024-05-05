@@ -1,9 +1,8 @@
 ﻿using System.Text.Json.Serialization;
-using VacdmDataFaker.Shared;
 
-namespace VacdmDataFaker.Vacdm
+namespace VacdmDataFaker.Shared
 {
-    public class Config
+    public class VacdmConfig
     {
         [JsonPropertyName("cid")]
         public int Cid { get; set; }
@@ -34,23 +33,5 @@ namespace VacdmDataFaker.Vacdm
 
         [JsonPropertyName("allowNonDevCids")]
         public bool AllowNonDevCids { get; set; } = false;
-
-        //Casting Shared.VacdmConfig to Config
-        public static implicit operator Config(VacdmConfig v)
-        {
-            return new Config()
-            {
-                Cid = v.Cid,
-                Password = v.Password,
-                Url = v.Url,
-                UpdateAutomatically = v.UpdateAutomatically,
-                UpdateInterval = v.UpdateInterval,
-                MinimumAmount = v.MinimumAmount,
-                MaximumAmount = v.MaximumAmount,
-                DeleteAllOnStartup = v.DeleteAllOnStartup,
-                RequireAuthenticationForLogs = v.RequireAuthenticationForLogs,
-                AllowNonDevCids = v.AllowNonDevCids
-            };
-        }
     }
 }

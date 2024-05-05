@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using VacdmDataFaker.Shared;
 
 namespace VacdmDataFaker.FlowMeasures
 {
@@ -18,5 +19,21 @@ namespace VacdmDataFaker.FlowMeasures
 
         [JsonPropertyName("initialAmount")]
         public int InitialAmount { get; set; } = 10;
+
+        [JsonPropertyName("requireAuthenticationForLogs")]
+        public bool RequireAuthenticationForLogs { get; set; } = true;
+
+        public static implicit operator Config(EcfmpConfig v)
+        {
+            return new Config()
+            {
+                Username = v.Username,
+                Password = v.Password,
+                UpdateAutomatically = v.UpdateAutomatically,
+                UpdateInterval = v.UpdateInterval,
+                InitialAmount = v.InitialAmount,
+                RequireAuthenticationForLogs = v.RequireAuthentificationForLogs
+            };
+        }
     }
 }

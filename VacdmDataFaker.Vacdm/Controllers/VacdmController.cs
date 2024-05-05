@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using VacdmDataFaker.Shared;
 
 namespace VacdmDataFaker.Vacdm.Controllers
 {
@@ -11,11 +15,11 @@ namespace VacdmDataFaker.Vacdm.Controllers
         public async Task<JsonResult> Get()
         {
             var client = new HttpClient();
-
+            
 #if RELEASE
             if (TaskRunner.Config.Url is null)
             {
-                Console.WriteLine($"[{DateTime.UtcNow:s}] [FATAL] Variable VACDM_URL was not provided");
+                TaskRunner.LogMessages.Add(Logger.LogFatal("Variable VACDM_URL was not provided"));
 
                 throw new MissingMemberException();
             }
@@ -37,7 +41,11 @@ namespace VacdmDataFaker.Vacdm.Controllers
         {
             var context = HttpContext;
 
-            var authenticateSuccess = ApiAuthenticator.AuthenticateUser(context);
+            var authHeader = AuthenticationHeaderValue.Parse(
+                 context.Request.Headers["Authorization"]
+             );
+
+            var authenticateSuccess = Authenticator.AuthenticateUser(authHeader, true);
 
             if(authenticateSuccess != HttpStatusCode.OK)
             {
@@ -46,13 +54,11 @@ namespace VacdmDataFaker.Vacdm.Controllers
 
             try
             {
-                var now = DateTime.UtcNow;
-
                 var addCount = count ?? 10;
 
                 VacdmPilotFaker.FakePilots(addCount);
 
-                Console.WriteLine($"[{now:s}] [INFO] Added {count} Pilots through DELETE");
+                TaskRunner.LogMessages.Add(Logger.LogInfo($"Added {count} Pilots through DELETE"));
 
                 return HttpStatusCode.OK;
 
@@ -61,7 +67,7 @@ namespace VacdmDataFaker.Vacdm.Controllers
             {
                 var now = DateTime.UtcNow;
 
-                Console.WriteLine($"[{now:s}] [WARN] Post failed: {ex.InnerException}");
+                TaskRunner.LogMessages.Add(Logger.LogWarning($"[{now:s}] [WARN] Post failed: {ex.InnerException}"));
 
                 return HttpStatusCode.InternalServerError;
             }
@@ -73,7 +79,11 @@ namespace VacdmDataFaker.Vacdm.Controllers
         {
             var context = HttpContext;
 
-            var authenticateSuccess = ApiAuthenticator.AuthenticateUser(context);
+            var authHeader = AuthenticationHeaderValue.Parse(
+                 context.Request.Headers["Authorization"]
+             );
+
+            var authenticateSuccess = Authenticator.AuthenticateUser(authHeader, true);
 
             if (authenticateSuccess != HttpStatusCode.OK)
             {
@@ -86,14 +96,14 @@ namespace VacdmDataFaker.Vacdm.Controllers
                 {
                     await VacdmPilotFaker.DeleteAllAsync();
 
-                    Console.WriteLine($"[{DateTime.UtcNow:s}] [INFO] Deleted all Pilots through DELETE");
+                    TaskRunner.LogMessages.Add(Logger.LogInfo($"[{DateTime.UtcNow:s}] [INFO] Deleted all Pilots through DELETE"));
 
                     return "success";
                 }
 
                 if(count <= 0)
                 {
-                    Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] Delete failed, invalid count was provided");
+                    TaskRunner.LogMessages.Add(Logger.LogWarning($"[{DateTime.UtcNow:s}] [WARN] Delete failed, invalid count was provided"));
 
                     return "invalid count value";
                 }
@@ -101,13 +111,13 @@ namespace VacdmDataFaker.Vacdm.Controllers
                 //count can not be null
                 await VacdmPilotFaker.DeleteCountAsync((int)count);
 
-                Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Deleted {count} pilots through DELETE");
+                TaskRunner.LogMessages.Add(Logger.LogInfo($"[{DateTime.UtcNow:s}Z] [INFO] Deleted {count} pilots through DELETE"));
 
                 return "success";
             }
             catch ( Exception ex )
             {
-                Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] DELETE failed: {ex.InnerException}");
+                TaskRunner.LogMessages.Add(Logger.LogWarning($"[{DateTime.UtcNow:s}] [WARN] DELETE failed: {ex.InnerException}"));
 
                 return "error, see logs";
             }

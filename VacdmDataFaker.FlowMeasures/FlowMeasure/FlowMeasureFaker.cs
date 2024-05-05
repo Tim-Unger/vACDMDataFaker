@@ -65,6 +65,7 @@
 
         internal static void FakeMeasures(int count)
         {
+            //Add measures until we have as many as we want
             for (int i = 0; i < count; i++)
             {
                 var flowMeasure = FakeMeasure();

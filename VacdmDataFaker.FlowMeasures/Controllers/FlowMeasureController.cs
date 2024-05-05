@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using VacdmDataFaker.Vacdm;
+using System.Net.Http.Headers;
+using VacdmDataFaker.Shared;
 
 namespace VacdmDataFaker.FlowMeasures.Controllers
 {
@@ -16,30 +17,28 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
         {
             var context = HttpContext;
 
-            var authenticateSuccess = ApiAuthenticator.AuthenticateUser(context);
+            var authHeader = AuthenticationHeaderValue.Parse(
+                 context.Request.Headers["Authorization"]
+             );
 
-            if (authenticateSuccess != HttpStatusCode.OK)
+            var authenticateSuccessCode = Authenticator.AuthenticateUser(authHeader, false);
+
+            if (authenticateSuccessCode != HttpStatusCode.OK)
             {
-                Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] Authetification for POST Request failed");
-
+                TaskRunner.LogMessages.Add(Logger.LogError("Authentication for POST Request failed"));
                 return "unauthorized";
             }
 
             try
             {
-                var now = DateTime.UtcNow;
-
-                Console.WriteLine($"[{now:s}] [INFO] Adding {count} through POST");
-
                 FlowMeasureFaker.FakeMeasures(count);
 
+                TaskRunner.LogMessages.Add(Logger.LogInfo($"Added {count} through POST"));
                 return "success";
             }
             catch (Exception ex)
             {
-                var now = DateTime.UtcNow;
-
-                Console.WriteLine($"[{now:s}] [WARN] Post failed: {ex.InnerException}");
+                TaskRunner.LogMessages.Add(Logger.LogError($"Post failed: {ex.InnerException}"));
 
                 return "error, see logs";
             }
@@ -51,7 +50,11 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
         {
             var context = HttpContext;
 
-            var authenticateSuccess = ApiAuthenticator.AuthenticateUser(context);
+            var authHeader = AuthenticationHeaderValue.Parse(
+                 context.Request.Headers["Authorization"]
+             );
+
+            var authenticateSuccess = Authenticator.AuthenticateUser(authHeader, false);
 
             if (authenticateSuccess != HttpStatusCode.OK)
             {
@@ -64,28 +67,24 @@ namespace VacdmDataFaker.FlowMeasures.Controllers
                 {
                     FlowMeasureFaker.DeleteMeasures(null);
 
-                    Console.WriteLine($"[{DateTime.UtcNow:s}] [INFO] Deleted all Flow Measures");
-
+                    TaskRunner.LogMessages.Add(Logger.LogInfo("Deleted all Flow Measures"));
                     return "success";
                 }
 
                 if (count <= 0)
                 {
-                    Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] Delete failed, invalid count was provided");
-
+                    TaskRunner.LogMessages.Add(Logger.LogWarning("Delete failed, invalid count was provided"));
                     return "invalid count value";
                 }
 
                 FlowMeasureFaker.DeleteMeasures(count);
 
-                Console.WriteLine($"[{DateTime.UtcNow:s}Z] [INFO] Deleted {count} measures through DELETE");
-
+                TaskRunner.LogMessages.Add(Logger.LogInfo("Deleted {count} measures through DELETE"));
                 return "success";
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[{DateTime.UtcNow:s}] [WARN] DELETE failed: {ex.InnerException}");
-
+                TaskRunner.LogMessages.Add(Logger.LogError($"DELETE failed: {ex.InnerException}"));
                 return "error, see logs";
             }
         }

@@ -17,4 +17,8 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VacdmDataFaker.Shared\VacdmDataFaker.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

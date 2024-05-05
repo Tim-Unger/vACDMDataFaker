@@ -1,0 +1,25 @@
+version: '1.2'
+  
+services:
+  vacdm:
+    image: timunger/vacdmdatafaker-vacdm:latest
+    container_name: datafaker-vacdm
+    restart: unless-stopped
+    ports: 
+      - '6001:6001'
+    environment:
+      - VACDM_CID=
+      - VACDM_PASSWORD=
+      - VACDM_URL=
+      - ASPNETCORE_URLS=http://*:6001
+        
+  ecfmp:
+    image: timunger/vacdmdatafaker-flowmeasures:latest
+    container_name: datafaker-ecfmp
+    restart: unless-stopped
+    ports: 
+      - '6002:6002'
+    environment:
+      - ECFMP_USER=
+      - ECFMP_PASSWORD=
+      - ASPNETCORE_URLS=http://*:6002

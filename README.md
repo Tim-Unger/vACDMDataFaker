@@ -21,16 +21,18 @@ services:
       - VACDM_CID=
       - VACDM_PASSWORD=
       - VACDM_URL=
+      - ASPNETCORE_URLS=http://*:6001
         
   flowmeasures:
     image: timunger/vacdmdatafaker-flowmeasures:latest
     container_name: datafaker-ecfmp
     restart: unless-stopped
     ports: 
-      - '6000:6000'
+      - '6002:6002'
     environment:
       - ECFMP_USER=
       - ECFMP_PASSWORD=
+      - ASPNETCORE_URLS=http://*:6002
 ```
 
 ## Environment Variables

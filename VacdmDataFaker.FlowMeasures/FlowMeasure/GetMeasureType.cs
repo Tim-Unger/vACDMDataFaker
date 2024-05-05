@@ -5,10 +5,10 @@
         private static (MeasureType MeasureType, string MeasureTypeString) GetMeasureType(string measureTypeRaw) =>
             measureTypeRaw switch
             {
-                "minimum_departure_interval" => (MeasureType.MDI, "MDI"),
-                "average_departure_interval" => (MeasureType.ADI, "ADI"),
+                "minimum_departure_interval" => (MeasureType.Mdi, "MDI"),
+                "average_departure_interval" => (MeasureType.Adi, "ADI"),
                 "per_hour" => (MeasureType.FlightsPerHour, "Flights per Hour"),
-                "miles_in_trail" => (MeasureType.MIT, "Miles in Trail"),
+                "miles_in_trail" => (MeasureType.Mit, "Miles in Trail"),
                 "max_ias" => (MeasureType.MaxIas, "Max Indicated Airspeed"),
                 "max_mach" => (MeasureType.MaxMach, "Max Mach Number"),
                 "ias_reduction" => (MeasureType.IasReduction, "Reduce IAS by"),

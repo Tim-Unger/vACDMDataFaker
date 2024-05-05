@@ -4,10 +4,10 @@ namespace VacdmDataFaker.FlowMeasures
 {
     public enum MeasureType
     {
-        MDI,
-        ADI,
+        Mdi,
+        Adi,
         FlightsPerHour,
-        MIT,
+        Mit,
         MaxIas,
         MaxMach,
         IasReduction,

@@ -1,4 +1,6 @@
 ﻿using Bogus;
+using System.Diagnostics;
+using System.Text;
 using VacdmDataFaker.Shared;
 
 namespace VacdmDataFaker.FlowMeasures
@@ -35,20 +37,52 @@ namespace VacdmDataFaker.FlowMeasures
 
             for (var i = 0; i < randomFilterAmount; i++)
             {
-                randomFilters.Add(_filters[random.Next(0, _filters.Count)]);
+                var randomFilterIndex = random.Next(_filters.Count);
+                var randomFilterType = _filters[randomFilterIndex];
+
+                var randomFilter = GetRandomFilter(randomFilterType);
+
+                randomFilters.Add(randomFilter);
             }
 
             randomFilters = randomFilters.DistinctBy(x => x.Type).ToList();
 
+            //TODO make sure DEP and ARR only exist once
             //DEP or ARR are always required
-            if (!new[] { "ARR", "DEP" }.Any(x => randomFilters.Any(y => x == y.Type)))
+            if(!randomFilters.Any(x => x.Type == "ADEP"))
             {
-                randomFilters.Add(new Filter() { Type = "DEP", Value = "****" });
+                var randomAirportIndex = random.Next(_airports.Count);
+                var randomAirport = _airports[randomAirportIndex];
+
+                randomFilters.Add(new Filter() { Type = "ADEP", Value = randomAirport });
             }
+
+            if (!randomFilters.Any(x => x.Type == "ADES"))
+            {
+                var randomAirportIndex = random.Next(_airports.Count);
+                var randomAirport = _airports[randomAirportIndex];
+
+                randomFilters.Add(new Filter() { Type = "ADES", Value = randomAirport });
+            }
+
+            var randomIdentBuilder = new StringBuilder();
+
+            var randomIdentNameIndex = random.Next(_idents.Count);
+            var randomIdentName = _idents[randomIdentNameIndex];
+            randomIdentBuilder.Append(randomIdentName);
+
+            var randomIndentCount = random.Next(0, 9);
+            var randomIndent = $"0{randomIndentCount}";
+            randomIdentBuilder.Append(randomIndent);
+
+            var randomLetterIdentifierIndex = random.Next(_letters.Count);
+            var randomLetterIdentifier = _letters[randomLetterIdentifierIndex];
+            randomIdentBuilder.Append(randomLetterIdentifier);
+            
 
             var flowMeasureFaker = new Faker<FlowMeasure>()
                 .RuleFor(x => x.Id, y => y.Random.Int(0, 9999))
-                .RuleFor(x => x.Ident, y => $"{y.Random.String2(4).ToUpper()}{y.Random.Int(1, 6)}{y.Random.String2(1).ToUpper()}")
+                .RuleFor(x => x.Ident, y => randomIdentBuilder.ToString())
                 .RuleFor(x => x.Measure, y => measure)
                 .RuleFor(x => x.MeasureStatus, y => (MeasureStatus)y.Random.Int(0, 3));
 
@@ -80,6 +114,48 @@ namespace VacdmDataFaker.FlowMeasures
             TaskRunner.LogMessages.Add(Logger.LogInfo($"Added Measure {fakeMeasure.Ident}"));
 
             return fakeMeasure;
+        }
+
+        private static Filter GetRandomFilter(string filterType)
+        {
+            var filter = new Filter() { Type = filterType };
+
+            var random = new Random();
+
+            if (filterType == "ADEP" || filterType == "ADES")
+            {
+                var randomIcaoIndex = random.Next(_airports.Count);
+
+                var randomIcao = _airports[randomIcaoIndex];
+
+                filter.Value = randomIcao;
+
+                return filter;
+            }
+
+            if(filterType == "level_above" || filterType == "level_below" || filterType == "level")
+            {
+                var randomLevelIndex = random.Next(_flightlevels.Count);
+
+                var randomLevel = _flightlevels[randomLevelIndex];
+
+                filter.Value = randomLevel;
+
+                return filter;
+            }
+
+            if(filterType == "waypoint")
+            {
+                var randomWaypointIndex = random.Next(_waypoints.Count);
+
+                var randomWaypoint = _waypoints[randomWaypointIndex];
+
+                filter.Value = randomWaypoint;
+
+                return filter;
+            }
+
+            throw new UnreachableException("filterType was not a value that exists");
         }
     }
 }
